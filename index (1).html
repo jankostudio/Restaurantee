@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lumbre Restaurante</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Hanken+Grotesk:wght@300;400;500;600&display=swap">
+<style>
+/* Concepto: carta de restaurante a media luz. Casi negro con un verde de botella muy hondo, latón apagado,
+   serifa de alto contraste. Movimiento: brasas que suben, anillo giratorio, rótulo deslizante y aparición al hacer scroll. */
+:root {
+  --bg: #060b08;
+  --surface: #0b1410;
+  --surface-2: #111d17;
+  --ink: #ece4d0;
+  --mute: #8d9a90;
+  --accent: #cfae6a;
+  --accent-ink: #181206;
+  --line: rgba(236, 228, 208, 0.11);
+  --plate: #e6dec9;
+  --font-display: "Bodoni Moda", "Didot", "Times New Roman", serif;
+  --font-body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.6; font-weight: 300;
+  padding-block: 0 84px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 20; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.wrap { max-width: 1040px; margin-inline: auto; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; text-wrap: balance; }
+.eyebrow { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin: 0; }
+
+/* Cabecera */
+header {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15; background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 14px; }
+.progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; }
+.brand { font-family: var(--font-display); font-size: 26px; letter-spacing: 0.08em; text-decoration: none; }
+nav { display: flex; gap: 22px; align-items: center; }
+nav a { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; color: var(--mute); }
+nav a:hover { color: var(--ink); }
+.btn {
+  display: inline-block; background: var(--accent); color: var(--accent-ink); text-decoration: none;
+  font-weight: 600; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 13px 22px; border: 1px solid var(--accent); cursor: pointer; font-family: inherit;
+}
+nav a.btn { color: var(--accent-ink); }
+.btn:hover { filter: brightness(1.1); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.ghost:hover { border-color: var(--accent); }
+.btn.glow { animation: pulse 3.2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(207, 174, 106, 0); } 50% { box-shadow: 0 0 22px 2px rgba(207, 174, 106, 0.35); } }
+@media (max-width: 640px) { nav a.hide-sm { display: none; } }
+
+/* Portada */
+.stage { position: relative; }
+#embers { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; -webkit-mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent); mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent); }
+.hero { position: relative; padding-block: 56px 56px; display: grid; gap: 40px; grid-template-columns: 1.15fr 0.85fr; align-items: center; }
+.hero h1 { font-size: clamp(44px, 9vw, 92px); line-height: 1; letter-spacing: -0.01em; margin-block: 18px 22px; }
+.hero h1 .ln { display: block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+.hero h1 .ln > span { display: block; animation: lift 1.1s cubic-bezier(.2,.7,.2,1) both; }
+.hero h1 .ln:nth-child(2) > span { animation-delay: 0.14s; }
+.hero h1 .ln:nth-child(3) > span { animation-delay: 0.28s; }
+.hero h1 em { font-style: italic; color: var(--accent); }
+@keyframes lift { from { transform: translateY(105%); } to { transform: none; } }
+.hero p.lead { max-width: 46ch; color: var(--mute); font-size: 17px; margin: 0 0 28px; animation: fade 1.2s 0.5s ease both; }
+.hero .actions { display: flex; flex-wrap: wrap; gap: 12px; animation: fade 1.2s 0.7s ease both; }
+@keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (max-width: 820px) { .hero { grid-template-columns: 1fr; padding-block: 36px 36px; } .hero .visual { order: -1; max-width: 340px; margin-inline: auto; width: 100%; } }
+
+/* Plato visto desde arriba, con anillo giratorio y luz de brasa */
+.visual { position: relative; aspect-ratio: 1; width: 100%; }
+.halo { position: absolute; inset: -22%; background: radial-gradient(circle, rgba(207, 174, 106, 0.26), transparent 62%); animation: flicker 4.5s ease-in-out infinite alternate; }
+@keyframes flicker { 0% { opacity: 0.55; transform: scale(0.96); } 40% { opacity: 1; transform: scale(1.03); } 70% { opacity: 0.7; } 100% { opacity: 0.95; transform: scale(1); } }
+.plate {
+  position: absolute; inset: 11%; border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 58%, rgba(0,0,0,0.10) 58.5% 59.5%, transparent 60%),
+    radial-gradient(circle at 38% 32%, #fff6 0, transparent 40%),
+    radial-gradient(circle, var(--plate) 0 100%);
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.9), inset 0 0 0 10px rgba(0,0,0,0.04);
+}
+.plate::after {
+  content: ""; position: absolute; inset: 24%; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #8a5a2b 0, #4b2f17 55%, #2c1b0d 100%);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.5);
+}
+.plate i { position: absolute; border-radius: 50%; background: #6d8f4e; width: 9%; height: 9%; top: 30%; left: 56%; box-shadow: 14px 22px 0 -1px #6d8f4e, -30px 36px 0 -2px #8fae6a; z-index: 1; }
+.ring { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--accent); animation: spin 48s linear infinite; }
+.ring text { fill: currentColor; font: 500 8.4px var(--font-body); letter-spacing: 0.34em; text-transform: uppercase; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ph-tag {
+  position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); white-space: nowrap;
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute);
+  background: var(--bg); border: 1px solid var(--line); padding: 5px 12px;
+}
+
+/* Rótulo deslizante */
+.marquee { overflow: hidden; border-block: 1px solid var(--line); padding-block: 16px; margin-block: 8px; }
+.marquee .track { display: flex; width: max-content; animation: slide 38s linear infinite; }
+.marquee span { font-family: var(--font-display); font-style: italic; font-size: clamp(22px, 4vw, 34px); color: var(--mute); white-space: nowrap; padding-right: 0.8em; }
+.marquee span b { color: var(--accent); font-style: normal; font-weight: 400; padding-left: 0.8em; }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+/* Secciones */
+section { padding-block: 64px; border-top: 1px solid var(--line); }
+section.first { border-top: 0; }
+.sec-head { display: grid; gap: 10px; margin-bottom: 36px; max-width: 60ch; }
+.sec-head h2 { font-size: clamp(32px, 5.5vw, 52px); line-height: 1.05; }
+.sec-head p { color: var(--mute); margin: 0; }
+
+.story { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.story p { margin: 0 0 16px; max-width: 52ch; }
+.facts { display: grid; gap: 0; border-top: 1px solid var(--line); margin: 0; }
+.facts div { display: flex; justify-content: space-between; gap: 16px; padding-block: 14px; border-bottom: 1px solid var(--line); }
+.facts dt { color: var(--mute); }
+.facts dd { margin: 0; font-family: var(--font-display); font-size: 19px; text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) { .story { grid-template-columns: 1fr; gap: 24px; } }
+
+/* Carta */
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+.tab {
+  background: transparent; color: var(--mute); border: 1px solid var(--line); padding: 10px 18px;
+  font: 500 13px var(--font-body); letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+.tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.dishes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 56px; }
+.dish { padding-block: 20px; border-bottom: 1px solid var(--line); min-width: 0; position: relative; }
+.dish::after { content: ""; position: absolute; left: 0; bottom: -1px; height: 1px; width: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.7s ease; }
+.dish:hover::after { transform: scaleX(1); }
+.dish .row { display: flex; align-items: baseline; gap: 12px; }
+.dish h3 { font-size: 22px; line-height: 1.2; }
+.dish .dots { flex: 1; border-bottom: 1px dotted var(--line); transform: translateY(-4px); min-width: 12px; }
+.dish .price { font-family: var(--font-display); font-size: 20px; color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dish p { margin: 6px 0 0; color: var(--mute); font-size: 15px; }
+.note { margin-top: 20px; font-size: 13px; color: var(--mute); }
+@media (max-width: 760px) { .dishes { grid-template-columns: 1fr; } }
+
+.tasting {
+  margin-top: 40px; background: var(--surface); border: 1px solid var(--line);
+  padding: 32px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center;
+}
+.tasting h3 { font-size: 30px; margin-block: 8px; }
+.tasting p { margin: 0; color: var(--mute); max-width: 52ch; }
+.tasting .big { font-family: var(--font-display); font-size: 48px; line-height: 1; color: var(--accent); }
+.tasting .big small { display: block; font-family: var(--font-body); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); margin-top: 8px; }
+@media (max-width: 640px) { .tasting { grid-template-columns: 1fr; padding: 24px; } }
+
+/* Galería (marcadores de foto, con paralaje suave) */
+.gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.shot {
+  position: relative; aspect-ratio: 4 / 5; background: var(--surface); border: 1px solid var(--line);
+  display: grid; place-items: center; overflow: hidden; min-width: 0; --py: 0px;
+}
+.shot:nth-child(2) { aspect-ratio: 4 / 6; margin-top: -24px; }
+.shot::before { content: ""; position: absolute; width: 62%; aspect-ratio: 1; border-radius: 50%; background: var(--surface-2); box-shadow: inset 0 0 0 8px rgba(255,255,255,0.03); transform: translateY(var(--py)); }
+.shot span { position: relative; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); text-align: center; padding: 8px; }
+@media (max-width: 640px) { .gallery { grid-template-columns: 1fr 1fr; } .shot:nth-child(2) { margin-top: 0; aspect-ratio: 4 / 5; } .shot:nth-child(3) { grid-column: 1 / -1; aspect-ratio: 16 / 9; } }
+
+/* Reservas e info */
+.visit { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+@media (max-width: 820px) { .visit { grid-template-columns: 1fr; gap: 40px; } }
+.visit > * { min-width: 0; }
+.hours { width: 100%; border-collapse: collapse; margin-block: 8px 24px; }
+.hours td { padding-block: 11px; border-bottom: 1px solid var(--line); }
+.hours td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.hours tr.closed td:last-child { color: var(--mute); }
+address { font-style: normal; margin-bottom: 20px; }
+.phone-card { border: 1px solid var(--line); background: var(--surface); padding: 20px; margin-bottom: 22px; display: grid; gap: 6px; }
+.phone-card .num { font-family: var(--font-display); font-size: clamp(28px, 6vw, 38px); color: var(--accent); font-variant-numeric: tabular-nums; user-select: all; }
+.phone-card .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.map {
+  height: 150px; border: 1px solid var(--line); background:
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 100% 38px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 38px 100%, var(--surface);
+  display: grid; place-items: center; margin-bottom: 14px; position: relative;
+}
+.map::after { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); animation: ping 2.4s ease-out infinite; }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(207,174,106,0.55); } 100% { box-shadow: 0 0 0 26px rgba(207,174,106,0); } }
+form { background: var(--surface); border: 1px solid var(--line); padding: 28px; display: grid; gap: 16px; align-content: start; }
+form h3 { font-size: 28px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+.field input, .field select {
+  width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line);
+  padding: 13px 12px; font: 400 16px var(--font-body); border-radius: 0;
+}
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+#msg { margin: 0; font-size: 14px; color: var(--accent); min-height: 1.4em; }
+
+footer { border-top: 1px solid var(--line); padding-block: 36px 24px; display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; color: var(--mute); font-size: 13px; }
+footer .brand { color: var(--ink); font-size: 22px; }
+
+/* Barra fija en móvil */
+.dock {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; background: var(--bg); border-top: 1px solid var(--line);
+  padding-top: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: none; gap: 10px;
+}
+.dock .btn { flex: 1; text-align: center; padding-inline: 10px; }
+@media (max-width: 640px) { .dock { display: flex; } }
+
+/* Aparición al deslizar: solo se oculta si el script está activo y el usuario no pidió menos movimiento */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .rv { opacity: 0; transform: translateY(28px); transition: opacity 0.9s cubic-bezier(.2,.7,.2,1), transform 0.9s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d, 0s); }
+  html.js .rv.in { opacity: 1; transform: none; }
+  html.js .rv.fromleft { transform: translateX(-28px); }
+  html.js .rv.fromleft.in { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hero h1 .ln > span, .hero p.lead, .hero .actions, .halo, .ring, .marquee .track, .btn.glow, .map::after { animation: none; }
+}
+</style>
+
+<script>document.documentElement.classList.add('js');</script>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#inicio">LUMBRE</a>
+    <nav aria-label="Principal">
+      <a class="hide-sm" href="#carta">Carta</a>
+      <a class="hide-sm" href="#casa">La casa</a>
+      <a class="hide-sm" href="#visita">Visita</a>
+      <a class="btn" href="#reservas">Reservar</a>
+    </nav>
+  </div>
+  <div class="progress" id="progress"></div>
+</header>
+
+<main class="wrap" id="inicio">
+  <div class="stage">
+    <canvas id="embers" aria-hidden="true"></canvas>
+    <div class="hero">
+      <div>
+        <p class="eyebrow">Cocina de mercado · Almería</p>
+        <h1>
+          <span class="ln"><span>Fuego lento,</span></span>
+          <span class="ln"><span><em>producto</em> de</span></span>
+          <span class="ln"><span>la bahía.</span></span>
+        </h1>
+        <p class="lead">Cocina a la brasa con pescado de lonja, verdura de la vega y vinos de la tierra. Doce mesas, un solo servicio por la noche.</p>
+        <div class="actions">
+          <a class="btn glow" href="#reservas">Reservar mesa</a>
+          <a class="btn ghost" href="#carta">Ver la carta</a>
+        </div>
+      </div>
+      <div class="visual" aria-hidden="true">
+        <div class="halo"></div>
+        <div class="plate"><i></i></div>
+        <svg class="ring" viewBox="0 0 200 200">
+          <defs><path id="circ" d="M100,100 m-92,0 a92,92 0 1,1 184,0 a92,92 0 1,1 -184,0"/></defs>
+          <text><textPath href="#circ">Carta de otoño · Fuego lento · Producto de la bahía · Doce mesas ·</textPath></text>
+        </svg>
+        <span class="ph-tag">Foto principal del plato</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="track">
+      <span>Gamba roja<b>·</b>Brasa de encina<b>·</b>Tomate de la vega<b>·</b>Pescado de lonja<b>·</b>Cordero lechal<b>·</b>Aceite de la sierra<b>·</b></span>
+      <span>Gamba roja<b>·</b>Brasa de encina<b>·</b>Tomate de la vega<b>·</b>Pescado de lonja<b>·</b>Cordero lechal<b>·</b>Aceite de la sierra<b>·</b></span>
+    </div>
+  </div>
+
+  <section id="casa">
+    <div class="sec-head rv">
+      <p class="eyebrow">La casa</p>
+      <h2>Pocas mesas, mucha brasa.</h2>
+    </div>
+    <div class="story">
+      <div class="rv fromleft">
+        <p>Lumbre nace de una idea sencilla: cocinar lo que llega cada mañana al puerto y a los huertos cercanos, sin esconderlo bajo salsas. La brasa de encina hace casi todo el trabajo.</p>
+        <p>La carta cambia con la temporada y la sala es pequeña a propósito. Aquí se viene a cenar con calma, sin prisa por la mesa.</p>
+        <p class="note">Texto de ejemplo. En la web real se sustituye por la historia del restaurante.</p>
+      </div>
+      <dl class="facts rv" style="--d:0.15s">
+        <div><dt>Mesas</dt><dd><span class="count" data-to="12">12</span></dd></div>
+        <div><dt>Servicio</dt><dd>Un pase, 21:00</dd></div>
+        <div><dt>Brasa</dt><dd>Encina y sarmiento</dd></div>
+        <div><dt>Bodega</dt><dd><span class="count" data-to="60">60</span> referencias</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="carta">
+    <div class="sec-head rv">
+      <p class="eyebrow">Carta de otoño</p>
+      <h2>Lo que hay esta temporada.</h2>
+      <p>Los precios llevan IVA incluido. Avisa de alergias al reservar.</p>
+    </div>
+
+    <div class="tabs rv" role="tablist" aria-label="Secciones de la carta">
+      <button class="tab" role="tab" id="t-entrantes" aria-selected="true" aria-controls="p-entrantes">Entrantes</button>
+      <button class="tab" role="tab" id="t-principales" aria-selected="false" aria-controls="p-principales">Principales</button>
+      <button class="tab" role="tab" id="t-postres" aria-selected="false" aria-controls="p-postres">Postres</button>
+    </div>
+
+    <ul class="dishes" role="tabpanel" id="p-entrantes" aria-labelledby="t-entrantes">
+      <li class="dish rv"><div class="row"><h3>Gamba roja a la brasa</h3><span class="dots"></span><span class="price">24</span></div><p>Aceite de su cabeza y sal en escamas.</p></li>
+      <li class="dish rv"><div class="row"><h3>Tomate de la vega</h3><span class="dots"></span><span class="price">14</span></div><p>Ventresca, cebolla dulce y aceite de la sierra.</p></li>
+      <li class="dish rv"><div class="row"><h3>Croquetas de cocido</h3><span class="dots"></span><span class="price">12</span></div><p>Seis unidades, bechamel de caldo largo.</p></li>
+      <li class="dish rv"><div class="row"><h3>Alcachofa asada</h3><span class="dots"></span><span class="price">16</span></div><p>Crema de almendra y jamón crujiente.</p></li>
+    </ul>
+
+    <ul class="dishes" role="tabpanel" id="p-principales" aria-labelledby="t-principales" hidden>
+      <li class="dish rv"><div class="row"><h3>Pescado del día a la brasa</h3><span class="dots"></span><span class="price">29</span></div><p>Según lonja. Verdura de temporada.</p></li>
+      <li class="dish rv"><div class="row"><h3>Arroz de rape y alioli</h3><span class="dots"></span><span class="price">26</span></div><p>Mínimo dos personas. Precio por persona.</p></li>
+      <li class="dish rv"><div class="row"><h3>Chuletón madurado</h3><span class="dots"></span><span class="price">58</span></div><p>Cuarenta días de maduración, para compartir.</p></li>
+      <li class="dish rv"><div class="row"><h3>Cordero lechal</h3><span class="dots"></span><span class="price">27</span></div><p>Paletilla confitada y patata a lo pobre.</p></li>
+    </ul>
+
+    <ul class="dishes" role="tabpanel" id="p-postres" aria-labelledby="t-postres" hidden>
+      <li class="dish rv"><div class="row"><h3>Torrija de brioche</h3><span class="dots"></span><span class="price">9</span></div><p>Helado de leche ahumada.</p></li>
+      <li class="dish rv"><div class="row"><h3>Flan de queso</h3><span class="dots"></span><span class="price">8</span></div><p>Mermelada de higo de la casa.</p></li>
+      <li class="dish rv"><div class="row"><h3>Chocolate, sal y aceite</h3><span class="dots"></span><span class="price">10</span></div><p>Ganache tibia y pan tostado.</p></li>
+      <li class="dish rv"><div class="row"><h3>Fruta de temporada</h3><span class="dots"></span><span class="price">7</span></div><p>Granizado de limón.</p></li>
+    </ul>
+
+    <div class="tasting rv">
+      <div>
+        <p class="eyebrow">Menú degustación</p>
+        <h3>Siete pases, un solo recorrido.</h3>
+        <p>Cinco salados y dos dulces, con maridaje opcional. Se reserva con 48 horas de antelación.</p>
+      </div>
+      <div class="big">68 €<small>Por persona</small></div>
+    </div>
+  </section>
+
+  <section aria-label="Galería">
+    <div class="sec-head rv">
+      <p class="eyebrow">Galería</p>
+      <h2>La sala y la cocina.</h2>
+    </div>
+    <div class="gallery">
+      <div class="shot rv"><span>Foto de la sala</span></div>
+      <div class="shot rv" style="--d:0.12s"><span>Foto de la brasa</span></div>
+      <div class="shot rv" style="--d:0.24s"><span>Foto de un plato</span></div>
+    </div>
+  </section>
+
+  <section id="visita">
+    <div class="visit">
+      <div>
+        <div class="sec-head rv" style="margin-bottom:16px">
+          <p class="eyebrow">Visita</p>
+          <h2>Cuándo y dónde.</h2>
+        </div>
+        <table class="hours rv">
+          <tbody>
+            <tr><td>Martes a jueves</td><td>20:30 – 23:30</td></tr>
+            <tr><td>Viernes y sábado</td><td>13:30 – 16:00 · 20:30 – 00:00</td></tr>
+            <tr><td>Domingo</td><td>13:30 – 16:30</td></tr>
+            <tr class="closed"><td>Lunes</td><td>Cerrado</td></tr>
+          </tbody>
+        </table>
+        <div class="phone-card rv">
+          <p class="eyebrow">Reservas por teléfono</p>
+          <span class="num">+34 656 311 701</span>
+          <div class="links">
+            <a class="btn" href="tel:+34656311701">Llamar</a>
+            <a class="btn ghost" href="https://wa.me/34656311701?text=Hola%2C%20quisiera%20reservar%20una%20mesa%20en%20Lumbre.%20%C2%BFTen%C3%A9is%20disponibilidad%3F" target="_blank" rel="noopener">Reservar por WhatsApp</a>
+          </div>
+        </div>
+        <address class="rv">Calle de Ejemplo, 12<br>04001 Almería</address>
+        <div class="map rv" role="img" aria-label="Mapa de ubicación de ejemplo"></div>
+        <a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query=Almer%C3%ADa" target="_blank" rel="noopener">Abrir en Google Maps</a>
+        <p class="note">Dirección y mapa de ejemplo. Se cambian por los del cliente.</p>
+      </div>
+
+      <form id="reservas" class="rv" style="--d:0.1s" novalidate>
+        <p class="eyebrow">Reservas</p>
+        <h3>Reserva tu mesa</h3>
+        <div class="field"><label for="nombre">Nombre</label><input id="nombre" name="nombre" type="text" autocomplete="name" placeholder="Tu nombre"></div>
+        <div class="two">
+          <div class="field"><label for="fecha">Fecha</label><input id="fecha" name="fecha" type="date"></div>
+          <div class="field"><label for="hora">Hora</label>
+            <select id="hora" name="hora"><option>20:30</option><option>21:00</option><option selected>21:30</option><option>22:00</option></select>
+          </div>
+        </div>
+        <div class="field"><label for="personas">Personas</label>
+          <select id="personas" name="personas"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7 o más</option></select>
+        </div>
+        <a class="btn" id="wa-form" href="https://wa.me/34656311701" target="_blank" rel="noopener" style="text-align:center">Reservar por WhatsApp</a>
+        <p id="msg" role="status" aria-live="polite"></p>
+        <p class="note" style="margin:0">Se abre WhatsApp con el mensaje de reserva ya escrito. Solo tienes que enviarlo.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span class="brand">LUMBRE</span>
+  <span>+34 656 311 701 · Calle de Ejemplo, 12 · Almería</span>
+  <span>Web de ejemplo · Restaurante ficticio</span>
+</footer>
+
+<div class="dock">
+  <a class="btn ghost" href="tel:+34656311701">Llamar</a>
+  <a class="btn" href="#reservas">Reservar</a>
+</div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Pestañas de la carta */
+  var tabs = document.querySelectorAll('.tab');
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      tabs.forEach(function (o) {
+        var on = o === t;
+        o.setAttribute('aria-selected', on ? 'true' : 'false');
+        document.getElementById(o.getAttribute('aria-controls')).hidden = !on;
+      });
+    });
+  });
+
+  /* Retardo escalonado de los platos */
+  document.querySelectorAll('.dishes').forEach(function (ul) {
+    ul.querySelectorAll('.dish').forEach(function (li, i) { li.style.setProperty('--d', (i * 0.09) + 's'); });
+  });
+
+  /* Aparición al deslizar */
+  var items = document.querySelectorAll('.rv');
+  function showAll() { items.forEach(function (el) { el.classList.add('in'); }); }
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); if (e.target.classList.contains('facts')) countUp(); }
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -6% 0px' });
+    items.forEach(function (el) { io.observe(el); });
+    setTimeout(function () { /* red de seguridad: nada se queda oculto */
+      items.forEach(function (el) { if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in'); });
+    }, 2500);
+    setTimeout(showAll, 8000);
+  } else { showAll(); }
+
+  /* Cifras que suben */
+  var counted = false;
+  function countUp() {
+    if (counted || reduce) return; counted = true;
+    document.querySelectorAll('.count').forEach(function (el) {
+      var to = parseInt(el.getAttribute('data-to'), 10), t0 = null;
+      function step(ts) {
+        if (t0 === null) t0 = ts;
+        var p = Math.min((ts - t0) / 1100, 1);
+        el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(step); else el.textContent = to;
+      }
+      el.textContent = '0';
+      requestAnimationFrame(step);
+    });
+  }
+
+  /* Barra de progreso y paralaje de la galería */
+  var bar = document.getElementById('progress');
+  var shots = document.querySelectorAll('.shot');
+  var ticking = false;
+  function onScroll() {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(function () {
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var y = window.pageYOffset || document.documentElement.scrollTop;
+      bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(y / h, 1) : 0) + ')';
+      if (!reduce) {
+        shots.forEach(function (s) {
+          var r = s.getBoundingClientRect();
+          var off = (r.top + r.height / 2 - window.innerHeight / 2) / window.innerHeight;
+          s.style.setProperty('--py', (off * -34).toFixed(1) + 'px');
+        });
+      }
+      ticking = false;
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  /* Brasas que suben en la portada */
+  var cv = document.getElementById('embers');
+  if (cv && cv.getContext && !reduce) {
+    var cx = cv.getContext('2d'), W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2), P = [], run = true;
+    function size() {
+      var r = cv.getBoundingClientRect(); W = r.width; H = r.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function spawn(initial) {
+      return { x: Math.random() * W, y: initial ? Math.random() * H : H + 10, r: 0.6 + Math.random() * 1.8, vy: 0.25 + Math.random() * 0.7, ph: Math.random() * 6.28, sw: 0.2 + Math.random() * 0.6, a: 0.25 + Math.random() * 0.6 };
+    }
+    size();
+    for (var i = 0; i < 46; i++) P.push(spawn(true));
+    window.addEventListener('resize', size);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) { run = e[0].isIntersecting; if (run) loop(); }).observe(cv);
+    }
+    var last = 0;
+    function loop(ts) {
+      if (!run) return;
+      cx.clearRect(0, 0, W, H);
+      for (var i = 0; i < P.length; i++) {
+        var p = P[i];
+        p.y -= p.vy; p.ph += 0.02; p.x += Math.sin(p.ph) * p.sw;
+        var fade = Math.min(1, p.y / (H * 0.5));
+        if (p.y < -10) P[i] = spawn(false);
+        cx.beginPath();
+        cx.fillStyle = 'rgba(224,186,110,' + (p.a * Math.max(fade, 0)).toFixed(3) + ')';
+        cx.shadowColor = 'rgba(224,160,70,0.8)'; cx.shadowBlur = 8;
+        cx.arc(p.x, p.y, p.r, 0, 6.2832); cx.fill();
+      }
+      requestAnimationFrame(loop);
+    }
+    loop();
+  }
+
+  /* Formulario de demostración */
+  var form = document.getElementById('reservas');
+  var msg = document.getElementById('msg');
+  try {
+    var d = new Date(); d.setDate(d.getDate() + 1);
+    document.getElementById('fecha').value = d.toISOString().slice(0, 10);
+  } catch (e) {}
+  /* Mensaje de WhatsApp con los datos del formulario */
+  var wa = document.getElementById('wa-form');
+  var WA = 'https://wa.me/34656311701?text=';
+  function fechaLarga(v) {
+    var p = v.split('-');
+    if (p.length !== 3) return v;
+    var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return parseInt(p[2], 10) + ' de ' + meses[parseInt(p[1], 10) - 1];
+  }
+  function buildMsg() {
+    var name = document.getElementById('nombre').value.trim();
+    var fecha = document.getElementById('fecha').value;
+    var hora = document.getElementById('hora').value;
+    var n = document.getElementById('personas').value;
+    var t = 'Hola, quisiera reservar una mesa en Lumbre para ' + n + (n === '1' ? ' persona' : ' personas');
+    if (fecha) t += ' el ' + fechaLarga(fecha);
+    t += ' a las ' + hora + '.';
+    if (name) t += ' A nombre de ' + name + '.';
+    t += ' Gracias.';
+    return t;
+  }
+  function refresh() { wa.href = WA + encodeURIComponent(buildMsg()); }
+  ['nombre', 'fecha', 'hora', 'personas'].forEach(function (id) {
+    var el = document.getElementById(id);
+    el.addEventListener('input', refresh);
+    el.addEventListener('change', refresh);
+  });
+  refresh();
+  wa.addEventListener('click', function (ev) {
+    if (!document.getElementById('nombre').value.trim()) {
+      ev.preventDefault();
+      msg.textContent = 'Escribe tu nombre para preparar el mensaje.';
+      document.getElementById('nombre').focus();
+      return;
+    }
+    refresh();
+    msg.textContent = '';
+  });
+  form.addEventListener('submit', function (ev) { ev.preventDefault(); });
+})();
+</script>
+
+</body>
+</html>
